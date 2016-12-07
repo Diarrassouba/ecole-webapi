@@ -61,8 +61,7 @@ public class PersonneRestService {
 	public String creer(@RequestBody PostAjoutPersonne p) throws JsonProcessingException {
 		Reponse<Personne> reponse;
 		Personne entity = new Personne(p.getTitre(), p.getNom(), p.getPrenom(), p.getNumCni());
-		Adresse ad = new Adresse(p.getAdresse().getQuartier(), p.getAdresse().getCodePostal(),
-				p.getAdresse().getEmail());
+		Adresse ad = new Adresse(p.getQuartier(), p.getCodePostal(), p.getEmail());
 
 		entity.setAdresse(ad);
 
