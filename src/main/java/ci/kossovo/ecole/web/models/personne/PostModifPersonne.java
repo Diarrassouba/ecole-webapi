@@ -6,7 +6,10 @@ public class PostModifPersonne {
 	protected String nom;
 	protected String prenom;
 	protected String numCni;
-	protected PostAdresse adresse;
+	private String email;
+	private String codePostal;
+	private String quartier;
+
 
 	public String getTitre() {
 		return titre;
@@ -40,12 +43,30 @@ public class PostModifPersonne {
 		this.numCni = numCni;
 	}
 
-	public PostAdresse getAdresse() {
-		return adresse;
+	
+
+	public String getEmail() {
+		return email;
 	}
 
-	public void setAdresse(PostAdresse adresse) {
-		this.adresse = adresse;
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getCodePostal() {
+		return codePostal;
+	}
+
+	public void setCodePostal(String codePostal) {
+		this.codePostal = codePostal;
+	}
+
+	public String getQuartier() {
+		return quartier;
+	}
+
+	public void setQuartier(String quartier) {
+		this.quartier = quartier;
 	}
 
 	public long getId() {

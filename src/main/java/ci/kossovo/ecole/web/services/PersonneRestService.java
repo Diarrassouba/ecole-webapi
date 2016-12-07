@@ -83,8 +83,7 @@ public class PersonneRestService {
 		entity.setNom(p.getNom());
 		entity.setPrenom(p.getPrenom());
 		entity.setNumCni(p.getNumCni());
-		Adresse ad = new Adresse(p.getAdresse().getQuartier(), p.getAdresse().getCodePostal(),
-				p.getAdresse().getEmail());
+		Adresse ad = new Adresse(p.getQuartier(), p.getCodePostal(), p.getEmail());
 
 		entity.setAdresse(ad);
 
