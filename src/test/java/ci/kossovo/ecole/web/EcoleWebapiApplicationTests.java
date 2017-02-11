@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -37,18 +38,17 @@ public class EcoleWebapiApplicationTests {
 
 	@Test
 	public void trouverToutesPersonnes() throws Exception {
-		List<Personne> personnes= new ArrayList<>();
-		Personne p1= new Personne("Mr", "Diarra", "Drissa");
-		p1.setId(1L);
+	
+	//Donnée	
+		List<Personne> personnes= Arrays.asList(
+				new Personne(1l,"Mr", "Diarra", "Drissa","CNI01"),
+				new Personne(2l,"Mr", "Traoré", "Abdoulaye","CNI02"));
 		
-		personnes.add(p1);
-		Personne p2= new Personne("Mr", "Traoré", "Abdoulaye");
-		p2.setId(2L);
-		personnes.add(p2);
-		
+		//when
 		given(this.personneModel.findAll())
 		.willReturn(personnes);
 		
+		//then
 		this.mvc.perform(get("/personnes"))
 		.andExpect(status().isOk())
 		.andExpect(jsonPath("$.body.length()", is(2)))
