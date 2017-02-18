@@ -8,6 +8,13 @@ public class PostAjoutPersonne {
 	private String email;
 	private String codePostal;
 	private String quartier;
+	
+	
+
+	public PostAjoutPersonne() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
 	public String getTitre() {
 		return titre;
