@@ -2,6 +2,7 @@ package ci.kossovo.ecole.web.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -109,10 +110,13 @@ public class PersonneRestService {
 		Reponse<List<Personne>> reponse = null;
 		try {
 			List<Personne> personnesTous = modelPersonne.findAll();
-			// List<Personne> personnes=personnesTous.stream().filter(p->
-			// p.getType()=="PE").collect(Collectors.toList());
-			if (!personnesTous.isEmpty()) {
-				reponse = new Reponse<List<Personne>>(0, null, personnesTous);
+			//utiliser stream et lambda java 8
+			List<Personne> personnes=new ArrayList<>();
+			 personnes=personnesTous.stream().filter(p->
+			 p.getType().equals("PE")).collect(Collectors.toList());
+			 
+			if (!personnes.isEmpty()) {
+				reponse = new Reponse<List<Personne>>(0, null, personnes);
 			} else {
 				List<String> messages = new ArrayList<>();
 				messages.add("Pas de personnes enregistrées à ce jour");

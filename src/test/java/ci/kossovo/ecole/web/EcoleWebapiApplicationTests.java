@@ -3,22 +3,17 @@ package ci.kossovo.ecole.web;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -26,10 +21,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ci.kossovo.ecole.entity.Adresse;
 import ci.kossovo.ecole.entity.Personne;
-import ci.kossovo.ecole.exceptions.InvalidPersonneException;
 import ci.kossovo.ecole.web.models.personne.ApplicationModelPersonne;
 import ci.kossovo.ecole.web.models.personne.PostAjoutPersonne;
-import ci.kossovo.ecole.web.services.PersonneRestService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
@@ -47,10 +40,11 @@ public class EcoleWebapiApplicationTests {
 	public void trouverToutesPersonnes() throws Exception {
 	
 	//Donnée	
-		List<Personne> personnes= Arrays.asList(
-				new Personne(1l,"Mr", "Diarra", "Drissa","CNI01"),
-				new Personne(2l,"Mr", "Traoré", "Abdoulaye","CNI02")
-				);
+		Personne p1=new Personne(1l,"Mr", "Diarra", "Drissa","CNI01");
+		p1.setType("PE");
+		Personne p2=new Personne(2l,"Mr", "Traoré", "Abdoulaye","CNI02");
+		p2.setType("PE");
+		List<Personne> personnes= Arrays.asList(p1,p2);
 		
 		//when
 		given(this.personneModel.findAll())
@@ -66,7 +60,7 @@ public class EcoleWebapiApplicationTests {
 	
 	
 	
-	@Test
+	/*@Test
 	public void CreerUnePersonne() throws Exception {
 
 		PostAjoutPersonne pos= new PostAjoutPersonne();
@@ -92,13 +86,13 @@ public class EcoleWebapiApplicationTests {
 		System.out.println(mapper.writeValueAsString(p));
 		System.out.println(mapper.writeValueAsString(p2));
 		
-		/*this.mvc.perform(post("/personnes")
+		this.mvc.perform(post("/personnes")
 				
 				.accept(MediaType.APPLICATION_JSON_UTF8)
 		.content(mapper.writeValueAsString(pos))
 		)
-		.andExpect(status().isOk());*/
-	}
+		.andExpect(status().isOk());
+	}*/
 	
 	
 	
