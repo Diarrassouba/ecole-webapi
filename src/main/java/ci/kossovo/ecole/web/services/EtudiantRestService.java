@@ -9,7 +9,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,6 +25,7 @@ import ci.kossovo.ecole.exceptions.InvalidPersonneException;
 import ci.kossovo.ecole.web.models.Reponse;
 import ci.kossovo.ecole.web.models.personne.ApplicationModelPersonne;
 import ci.kossovo.ecole.web.models.personne.PostAjoutEtudiant;
+import ci.kossovo.ecole.web.models.personne.PostModifEtudiant;
 import ci.kossovo.ecole.web.utilitaires.Static;
 
 @RestController
@@ -37,7 +40,7 @@ public class EtudiantRestService {
 	private Reponse<Etudiant> getEtudiant(Long id) {
 		// On recupère létudiant
 		Etudiant etud = null;
-		
+
 		try {
 			etud = (Etudiant) modelPersonne.find(id);
 		} catch (RuntimeException e) {
@@ -83,7 +86,7 @@ public class EtudiantRestService {
 			reponse = new Reponse<>(8, messages, null);
 			erreur = true;
 		}
-		
+
 		// ajouter l'etudiant
 		if (!erreur) {
 			entity.setDateNaissance(naissance);
@@ -98,42 +101,98 @@ public class EtudiantRestService {
 
 		return jsonMapper.writeValueAsString(reponse);
 	}
-	
+
 	////////////////////////////////
 
 	// modifier un etudiant
-	public Personne modifier(Personne entity) throws InvalidPersonneException {
-		return modelPersonne.modifier(entity);
+	@PutMapping("/etudiants")
+	public String modifier(@RequestBody PostModifEtudiant post) throws JsonProcessingException {
+		Reponse<Etudiant> reponse = null;
+		boolean erreur = false;
+		
+		Reponse<Etudiant> reponseModif = getEtudiant(post.getId());
+		// etudiant existe?
+		if (reponseModif.getStatus() == 0) {
+			//recuperer l'etudiant
+			Etudiant et = reponseModif.getBody();
+			
+			//affecter les modifications
+			et.setTitre(post.getTitre());
+			et.setNom(post.getNom());
+			et.setPrenom(post.getPrenom());
+			et.setNumCni(post.getNumCni());
+			Adresse ad = new Adresse(post.getQuartier(), post.getCodePostal(), post.getEmail());
+			et.setAdresse(ad);
+			et.setPhoto(post.getPhoto());
+			et.setMatricule(post.getMatricule());
+
+			// Formater la date string en type Date
+			String nais = post.getDateNaissance();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			sdf.setLenient(false);
+			Date naissance = null;
+			try {
+				naissance = sdf.parse(nais);
+				et.setDateNaissance(naissance);
+			} catch (ParseException e) {
+				// erreur de formatage de date
+				List<String> messages = new ArrayList<>();
+				messages.add(String.format("La date [%] est invalide", nais));
+				reponse = new Reponse<Etudiant>(8, messages, null);
+				erreur = true;
+			}
+			
+			// date bien formater
+			if (!erreur) {
+				try {
+					// modifier l'etudiant
+					Etudiant entity = (Etudiant) modelPersonne.modifier(et);
+					reponse = new Reponse<Etudiant>(0, null, entity);
+				} catch (InvalidPersonneException e) {
+					// problème de modification
+					reponse = new Reponse<Etudiant>(0, Static.getErreurforexception(e), null);
+				}
+
+			}
+
+		} else {
+			// etudiant n'existe pas
+			reponse = new Reponse<Etudiant>(reponseModif.getStatus(), reponseModif.getMessages(),
+					reponseModif.getBody());
+		}
+
+		return jsonMapper.writeValueAsString(reponse);
 	}
-	
+
 	////////////////////////////
-	//liste des etudiants
+	// liste des etudiants
 	@GetMapping("/etudiants")
 	public String listEtudiants() throws JsonProcessingException {
-		Reponse<List<Etudiant>> reponse= null;
+		Reponse<List<Etudiant>> reponse = null;
 		try {
-			List<Etudiant> etudiants=modelPersonne.listEtudiants();
-			
-			//autre façon
-			/*List<Personne> personnes= modelPersonne.findAll();
-			List<Personne>Etudiants=personnes.stream().filter(
-					p -> p.getType().equals("ET")).collect(Collectors.toList());*/
-			
+			List<Etudiant> etudiants = modelPersonne.listEtudiants();
+			// List<Personne> etudiants=modelPersonne.personneAll("ET");
+
 			if (!etudiants.isEmpty()) {
-				reponse= new Reponse<List<Etudiant>>(0, null, etudiants);
+				reponse = new Reponse<List<Etudiant>>(0, null, etudiants);
+			} else {
+				List<String> messages = new ArrayList<>();
+				messages.add("Pas d'étudiants enregistrées à ce jour");
+				reponse = new Reponse<List<Etudiant>>(3, messages, null);
 			}
 		} catch (Exception e) {
-			List<String> messages = new ArrayList<>();
-			messages.add("Pas d'étudiants enregistrées à ce jour");
-			reponse = new Reponse<List<Etudiant>>(3, messages, null);
+			reponse = new Reponse<List<Etudiant>>(1, Static.getErreurforexception(e), null);
 		}
-		return jsonMapper.writeValueAsString(reponse) ;
+		return jsonMapper.writeValueAsString(reponse);
 	}
 
 	//////////////////////////////
 	// chercher un etudiant par identifiant
-	public Personne find(Long id) {
-		return modelPersonne.find(id);
+	@GetMapping("/etudiants/{id}")
+	public String find(@PathVariable("id") Long id) throws JsonProcessingException {
+		Reponse<Etudiant> reponse = null;
+		reponse = getEtudiant(id);
+		return jsonMapper.writeValueAsString(reponse);
 	}
 
 	//////////////////////////////
@@ -172,8 +231,6 @@ public class EtudiantRestService {
 	public List<Personne> chercherEtudiantParMc(String mc) {
 		return modelPersonne.chercherEtudiantParMc(mc);
 	}
-
-	
 
 	//////////////////////////
 	public List<Personne> listAdministrateurs() {

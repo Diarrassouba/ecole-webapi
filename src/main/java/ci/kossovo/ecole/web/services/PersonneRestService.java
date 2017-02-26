@@ -79,20 +79,25 @@ public class PersonneRestService {
 	public String modifier(@RequestBody PostModifPersonne p) throws JsonProcessingException {
 		Reponse<Personne> reponse;
 		Reponse<Personne> reponseModif = getPersonne(p.getId());
-		Personne entity = reponseModif.getBody();
-		entity.setTitre(p.getTitre());
-		entity.setNom(p.getNom());
-		entity.setPrenom(p.getPrenom());
-		entity.setNumCni(p.getNumCni());
-		Adresse ad = new Adresse(p.getQuartier(), p.getCodePostal(), p.getEmail());
+		if (reponseModif.getStatus()==0) {
+			Personne entity = reponseModif.getBody();
+			entity.setTitre(p.getTitre());
+			entity.setNom(p.getNom());
+			entity.setPrenom(p.getPrenom());
+			entity.setNumCni(p.getNumCni());
+			Adresse ad = new Adresse(p.getQuartier(), p.getCodePostal(), p.getEmail());
 
-		entity.setAdresse(ad);
+			entity.setAdresse(ad);
 
-		try {
-			reponse = new Reponse<Personne>(0, null, modelPersonne.modifier(entity));
-		} catch (InvalidPersonneException e) {
-			reponse = new Reponse<Personne>(1, Static.getErreurforexception(e), null);
+			try {
+				reponse = new Reponse<Personne>(0, null, modelPersonne.modifier(entity));
+			} catch (InvalidPersonneException e) {
+				reponse = new Reponse<Personne>(1, Static.getErreurforexception(e), null);
+			}
+		}else {
+			reponse=new Reponse<Personne>(reponseModif.getStatus(), reponseModif.getMessages(), reponseModif.getBody());
 		}
+		
 		return jsonMapper.writeValueAsString(reponse);
 	}
 
@@ -108,15 +113,12 @@ public class PersonneRestService {
 	@GetMapping("/personnes")
 	public String findAll() throws JsonProcessingException {
 		Reponse<List<Personne>> reponse = null;
+		//liste des personnes
 		try {
-			List<Personne> personnesTous = modelPersonne.findAll();
-			//utiliser stream et lambda java 8
-			List<Personne> personnes=new ArrayList<>();
-			 personnes=personnesTous.stream().filter(p->
-			 p.getType().equals("PE")).collect(Collectors.toList());
+			List<Personne> personnesTous = modelPersonne.personneAll("PE");
 			 
-			if (!personnes.isEmpty()) {
-				reponse = new Reponse<List<Personne>>(0, null, personnes);
+			if (!personnesTous.isEmpty()) {
+				reponse = new Reponse<List<Personne>>(0, null, personnesTous);
 			} else {
 				List<String> messages = new ArrayList<>();
 				messages.add("Pas de personnes enregistrées à ce jour");

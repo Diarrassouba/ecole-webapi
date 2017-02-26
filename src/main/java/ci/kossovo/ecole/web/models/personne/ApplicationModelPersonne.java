@@ -127,4 +127,9 @@ public class ApplicationModelPersonne implements IPersonneMetier {
 		return personneMetier.personneAll();
 	}
 
+	@Override
+	public List<Personne> personneAll(String type) {
+		return personneMetier.personneAll(type);
+	}
+
 }
