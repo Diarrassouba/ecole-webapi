@@ -79,7 +79,7 @@ public class PersonneRestService {
 	public String modifier(@RequestBody PostModifPersonne p) throws JsonProcessingException {
 		Reponse<Personne> reponse;
 		Reponse<Personne> reponseModif = getPersonne(p.getId());
-		if (reponseModif.getStatus()==0) {
+		if (reponseModif.getStatus() == 0) {
 			Personne entity = reponseModif.getBody();
 			entity.setTitre(p.getTitre());
 			entity.setNom(p.getNom());
@@ -94,10 +94,11 @@ public class PersonneRestService {
 			} catch (InvalidPersonneException e) {
 				reponse = new Reponse<Personne>(1, Static.getErreurforexception(e), null);
 			}
-		}else {
-			reponse=new Reponse<Personne>(reponseModif.getStatus(), reponseModif.getMessages(), reponseModif.getBody());
+		} else {
+			reponse = new Reponse<Personne>(reponseModif.getStatus(), reponseModif.getMessages(),
+					reponseModif.getBody());
 		}
-		
+
 		return jsonMapper.writeValueAsString(reponse);
 	}
 
@@ -113,10 +114,10 @@ public class PersonneRestService {
 	@GetMapping("/personnes")
 	public String findAll() throws JsonProcessingException {
 		Reponse<List<Personne>> reponse = null;
-		//liste des personnes
+		// liste des personnes
 		try {
 			List<Personne> personnesTous = modelPersonne.personneAll("PE");
-			 
+
 			if (!personnesTous.isEmpty()) {
 				reponse = new Reponse<List<Personne>>(0, null, personnesTous);
 			} else {
@@ -144,7 +145,7 @@ public class PersonneRestService {
 		if (!erreur) {
 			Reponse<Personne> reponsePers = getPersonne(id);
 			if (reponsePers.getStatus() != 0) {
-				reponse = new Reponse<>(reponsePers.getStatus(), reponsePers.getMessages(), null);
+				reponse = new Reponse<>(reponsePers.getStatus(), reponsePers.getMessages(), false);
 				erreur = true;
 			}
 		}
@@ -153,7 +154,7 @@ public class PersonneRestService {
 			try {
 				reponse = new Reponse<>(0, null, modelPersonne.supprimer(id));
 			} catch (RuntimeException e) {
-				reponse = new Reponse<>(3, Static.getErreurforexception(e), null);
+				reponse = new Reponse<>(3, Static.getErreurforexception(e), false);
 			}
 
 		}

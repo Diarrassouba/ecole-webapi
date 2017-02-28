@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -203,8 +204,28 @@ public class EtudiantRestService {
 
 	//////////////////////////////
 	// supprimer un etudiant par identifiant
-	public boolean supprimer(Long id) {
-		return modelPersonne.supprimer(id);
+	
+	@DeleteMapping("/etudiants/{id}")
+	public String supprimer(@PathVariable("id") Long id) throws JsonProcessingException {
+		Reponse<Boolean> reponse=null;
+		boolean erreur=false;
+		//on recupère l'étudiant
+		if (!erreur) {
+			Reponse<Etudiant> etudiantReponse=getEtudiant(id);
+			if (etudiantReponse.getStatus()!=0) {
+				reponse=new Reponse<Boolean>(etudiantReponse.getStatus(), etudiantReponse.getMessages(), false);
+				erreur=true;
+			}
+		}
+		// suppression
+		if (!erreur) {
+			try {
+				reponse= new Reponse<Boolean>(0, null, modelPersonne.supprimer(id));
+			} catch (Exception e) {
+				reponse= new Reponse<Boolean>(3, Static.getErreurforexception(e), false);
+			}
+		}
+		return jsonMapper.writeValueAsString(reponse);
 	}
 
 	///////////////////////////
