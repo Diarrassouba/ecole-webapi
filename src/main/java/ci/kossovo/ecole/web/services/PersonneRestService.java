@@ -26,7 +26,7 @@ import ci.kossovo.ecole.web.models.personne.PostAjoutPersonne;
 import ci.kossovo.ecole.web.models.personne.PostModifPersonne;
 import ci.kossovo.ecole.web.utilitaires.Static;
 
-@CrossOrigin
+@CrossOrigin(origins="http://localhost:4200")
 @RestController
 public class PersonneRestService {
 	@Autowired
