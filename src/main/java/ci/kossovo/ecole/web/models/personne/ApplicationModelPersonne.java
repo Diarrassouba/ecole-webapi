@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ci.kossovo.ecole.entity.Enseigne;
+import ci.kossovo.ecole.entity.Etudiant;
 import ci.kossovo.ecole.entity.Personne;
 import ci.kossovo.ecole.exceptions.InvalidPersonneException;
 import ci.kossovo.ecole.metier.IPersonneMetier;
@@ -97,7 +98,7 @@ public class ApplicationModelPersonne implements IPersonneMetier {
 	}
 
 	@Override
-	public List<Personne> listEtudiants() {
+	public List<Etudiant> listEtudiants() {
 		return personneMetier.listEtudiants();
 	}
 
@@ -124,6 +125,11 @@ public class ApplicationModelPersonne implements IPersonneMetier {
 	@Override
 	public List<Personne> personneAll() {
 		return personneMetier.personneAll();
+	}
+
+	@Override
+	public List<Personne> personneAll(String type) {
+		return personneMetier.personneAll(type);
 	}
 
 }

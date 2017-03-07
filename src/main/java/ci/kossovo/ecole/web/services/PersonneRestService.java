@@ -2,6 +2,7 @@ package ci.kossovo.ecole.web.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -25,7 +26,7 @@ import ci.kossovo.ecole.web.models.personne.PostAjoutPersonne;
 import ci.kossovo.ecole.web.models.personne.PostModifPersonne;
 import ci.kossovo.ecole.web.utilitaires.Static;
 
-@CrossOrigin
+@CrossOrigin(origins="http://localhost:4200")
 @RestController
 public class PersonneRestService {
 	@Autowired
@@ -61,8 +62,7 @@ public class PersonneRestService {
 	public String creer(@RequestBody PostAjoutPersonne p) throws JsonProcessingException {
 		Reponse<Personne> reponse;
 		Personne entity = new Personne(p.getTitre(), p.getNom(), p.getPrenom(), p.getNumCni());
-		Adresse ad = new Adresse(p.getAdresse().getQuartier(), p.getAdresse().getCodePostal(),
-				p.getAdresse().getEmail());
+		Adresse ad = new Adresse(p.getQuartier(), p.getCodePostal(), p.getEmail());
 
 		entity.setAdresse(ad);
 
@@ -79,21 +79,26 @@ public class PersonneRestService {
 	public String modifier(@RequestBody PostModifPersonne p) throws JsonProcessingException {
 		Reponse<Personne> reponse;
 		Reponse<Personne> reponseModif = getPersonne(p.getId());
-		Personne entity = reponseModif.getBody();
-		entity.setTitre(p.getTitre());
-		entity.setNom(p.getNom());
-		entity.setPrenom(p.getPrenom());
-		entity.setNumCni(p.getNumCni());
-		Adresse ad = new Adresse(p.getAdresse().getQuartier(), p.getAdresse().getCodePostal(),
-				p.getAdresse().getEmail());
+		if (reponseModif.getStatus() == 0) {
+			Personne entity = reponseModif.getBody();
+			entity.setTitre(p.getTitre());
+			entity.setNom(p.getNom());
+			entity.setPrenom(p.getPrenom());
+			entity.setNumCni(p.getNumCni());
+			Adresse ad = new Adresse(p.getQuartier(), p.getCodePostal(), p.getEmail());
 
-		entity.setAdresse(ad);
+			entity.setAdresse(ad);
 
-		try {
-			reponse = new Reponse<Personne>(0, null, modelPersonne.modifier(entity));
-		} catch (InvalidPersonneException e) {
-			reponse = new Reponse<Personne>(1, Static.getErreurforexception(e), null);
+			try {
+				reponse = new Reponse<Personne>(0, null, modelPersonne.modifier(entity));
+			} catch (InvalidPersonneException e) {
+				reponse = new Reponse<Personne>(1, Static.getErreurforexception(e), null);
+			}
+		} else {
+			reponse = new Reponse<Personne>(reponseModif.getStatus(), reponseModif.getMessages(),
+					reponseModif.getBody());
 		}
+
 		return jsonMapper.writeValueAsString(reponse);
 	}
 
@@ -109,10 +114,10 @@ public class PersonneRestService {
 	@GetMapping("/personnes")
 	public String findAll() throws JsonProcessingException {
 		Reponse<List<Personne>> reponse = null;
+		// liste des personnes
 		try {
-			List<Personne> personnesTous = modelPersonne.findAll();
-			// List<Personne> personnes=personnesTous.stream().filter(p->
-			// p.getType()=="PE").collect(Collectors.toList());
+			List<Personne> personnesTous = modelPersonne.personneAll("PE");
+
 			if (!personnesTous.isEmpty()) {
 				reponse = new Reponse<List<Personne>>(0, null, personnesTous);
 			} else {
@@ -140,7 +145,7 @@ public class PersonneRestService {
 		if (!erreur) {
 			Reponse<Personne> reponsePers = getPersonne(id);
 			if (reponsePers.getStatus() != 0) {
-				reponse = new Reponse<>(reponsePers.getStatus(), reponsePers.getMessages(), null);
+				reponse = new Reponse<>(reponsePers.getStatus(), reponsePers.getMessages(), false);
 				erreur = true;
 			}
 		}
@@ -149,7 +154,7 @@ public class PersonneRestService {
 			try {
 				reponse = new Reponse<>(0, null, modelPersonne.supprimer(id));
 			} catch (RuntimeException e) {
-				reponse = new Reponse<>(3, Static.getErreurforexception(e), null);
+				reponse = new Reponse<>(3, Static.getErreurforexception(e), false);
 			}
 
 		}
